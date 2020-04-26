@@ -101,7 +101,9 @@
     <EmbeddedResource Include="Properties\Resources.resx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="liblsl32.dll" />
+    <Resource Include="liblsl32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

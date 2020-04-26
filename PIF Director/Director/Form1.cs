@@ -22,7 +22,6 @@ namespace Director
         private static EventWaitHandle choiceEventHandler;
         private bool responceRequested;
         Thread VectorStreamInlet;
-        Thread ChoiceInlet;
         Thread ChoiceOutlet;
         private Thread MarkerInlet;
 
@@ -40,27 +39,33 @@ namespace Director
 
         private static bool StopAllStreams = false;
 
+        /// <summary>
+        /// Initializes the form for use with PIF Unity
+        /// </summary>
         public Form1()
         {
             InitializeComponent();
+            
             contextDictionary = new ConcurrentDictionary<string, Dictionary<string, List<double>>>();
             choiceEventHandler = new EventWaitHandle(false, EventResetMode.AutoReset);
             responceRequested = false;
 
         }
 
-
+        /// <summary>
+        /// Attempts to create a connection to PIF Unity. Will halt the director until a connection is established
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-            if (attemptingConnection) return;
+            if (attemptingConnection) return; //Only one connection attempt allowed.
             attemptingConnection = true;
             ConnectButton.Text = "Attempting to connect!";
 
+            //Start the Inlet and Outlet streams to connect via LSL.
             VectorStreamInlet = new Thread(this.ProcessVectorStream);
             VectorStreamInlet.Start();
-
-            //ChoiceInlet = new Thread(this.ProcessChoiceMarker);
-            //ChoiceInlet.Start();
 
             ChoiceOutlet = new Thread(this.SendChoiceOutlet);
             ChoiceOutlet.Start();
@@ -399,7 +404,6 @@ namespace Director
         private void OnFormClose(object sender, FormClosedEventArgs e)
         {
             if (VectorStreamInlet != null) VectorStreamInlet.Abort();
-            if (ChoiceInlet != null) ChoiceInlet.Abort();
             if (ChoiceOutlet != null) ChoiceOutlet.Abort();
         }
 
@@ -427,11 +431,6 @@ namespace Director
             string[] data = { varState };
 
             varOutlet.push_sample(data);
-        }
-
-        private void streamNameText_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void Advance_Click(object sender, EventArgs e)
